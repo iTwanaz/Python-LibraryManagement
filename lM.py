@@ -1,7 +1,9 @@
 import os
+import datetime
+import pickle
 
-run = False
-while run == False:
+run = True
+while run == True:
     f = open("records.txt", "r+")
     n = 1
     book_dict = {}
@@ -26,6 +28,11 @@ while run == False:
         std_dict[i] = line.split(",")
         i += 1
     fp.close()
+
+    date_dict = {}
+
+
+#<-----------------------------------------------------Function defining------------------------------->
 
     def display():
         print ""
@@ -62,15 +69,19 @@ while run == False:
         std_id = int(input("Enter your Id No: "))
 
         if std_id in std_dict:
-            borrow_date = raw_input("Date (dd/mm/yyyy): ")
+            borrow_date = datetime.date.today()
             book_name = book_dict[a][0]
             borrow_cost = int(book_dict[a][3])
             current_quantity = int(book_dict[a][2])
             book_dict[a][2] = current_quantity - 1
 
-            std_dict[std_id][1] = borrow_date
-            std_dict[std_id][2] = a
-            std_dict[std_id][3] = borrow_cost
+            date_dict[std_id] = borrow_date
+            std_dict[std_id][1] = a
+            std_dict[std_id][2] = borrow_cost
+
+            save_pickle = open("date_dict.pickle", "w")
+            pickle.dump(date_dict, save_pickle)
+            save_pickle.close()
 
             fp = open ("ids.txt", "w")
             for x, y in std_dict.items():
@@ -85,9 +96,12 @@ while run == False:
             f.close()
 
             print ""
+            print borrow_date                     #print borrow_date
+            print ""
             print "Name: ",name
             print "Book Name: ",book_name
             print "Total Amount: $",borrow_cost
+            print""
             print "The book should be returned in 10 days, otherwise additional charge of $10 would be added."
 
         else:
@@ -109,8 +123,11 @@ while run == False:
         name = raw_input("Enter your Name: ")
         std_id = int(input("Enter your Id No: "))
 
+        load_pickle = open("date_dict.pickle", "r")
+        date_dict = pickle.load(load_pickle)
+
         if std_id in std_dict:
-            return_date = input("Date (dd/mm/yyyy): ")
+            return_date = datetime.date.today()
             book_name = book_dict[a][0]
             borrow_cost = int(book_dict[a][3])
             current_quantity = int(book_dict[a][2])
@@ -118,7 +135,6 @@ while run == False:
 
             std_dict[std_id][1] = 0
             std_dict[std_id][2] = 0
-            std_dict[std_id][3] = 0
 
             fp = open ("ids.txt", "w")
             for x, y in std_dict.items():
@@ -133,16 +149,36 @@ while run == False:
             f.close()
 
             print ""
+            print return_date
+            print ""
             print "Name: ",name
             print "Book Name: ",book_name
+            print ""
             print "Thank you for returning the book."
 
+            late_fee(return_date, date_dict[std_id])
+
+            date_dict[std_id] = 0
+
+            save_pickle = open("date_dict.pickle", "w")
+            pickle.dump(date_dict, save_pickle)
+            save_pickle.close()
+
+
         else:
-            print "Borrow a Book First!"
+            print "ID not Found !!"
 
+    def late_fee(a, b):
+        diff = a - b
+        if diff.days > 10:
+            late_fee = diff.days * 2
+            print "You are", diff.days,"days late."
+            print "So, additional fee = $", late_fee
+        else:
+            print "Thank You!!"
 
+#<------------------------------------------------------------End of function defining------------------------->
     display()
-    #print std_dict
     try:
         print "1. Borrow"
         print "2. Return"
@@ -154,6 +190,6 @@ while run == False:
         elif choice == 2:
             return_()
         elif choice == 3:
-            run = True
+            run = False
     except:
         print "Enter a Valid Choice !!\n\n"
