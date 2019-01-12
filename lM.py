@@ -1,6 +1,7 @@
 import os
 
-while (True):
+run = False
+while run == False:
     f = open("records.txt", "r+")
     n = 1
     book_dict = {}
@@ -22,11 +23,13 @@ while (True):
         line = line.replace("[", "")
         line = line.replace("]", "")
         line = line.replace("'", "")
-        book_dict[n] = line.split(",")
+        std_dict[i] = line.split(",")
         i += 1
     fp.close()
 
     def display():
+        print ""
+        print ""
         print "========================== Library Management System ==============================="
         print ""
         print " Book Id. \tTitle of Book \t\t Writer \t\tAvailable  \tAmount"
@@ -56,30 +59,39 @@ while (True):
 
     def borrow_note(a):
         name = raw_input("Enter your Name: ")
-        borrow_date = raw_input("Date (dd/mm/yyyy): ")
-        book_name = book_dict[a][0]
-        borrow_cost = int(book_dict[a][3])
-        current_quantity = int(book_dict[a][2])
-        book_dict[a][2] = current_quantity - 1
+        std_id = int(input("Enter your Id No: "))
 
-            #Store user record
-        fp = open ("ids.txt", "w")
-        fp.write(str(name) + "," + str(borrow_date) + "," + str(a) + "," + str(borrow_cost) + "\n")
-        fp.close()
+        if std_id in std_dict:
+            borrow_date = raw_input("Date (dd/mm/yyyy): ")
+            book_name = book_dict[a][0]
+            borrow_cost = int(book_dict[a][3])
+            current_quantity = int(book_dict[a][2])
+            book_dict[a][2] = current_quantity - 1
 
-            #updating the file
-        os.remove("records.txt")
-        f = open ("records.txt", "w")
-        for x, y in book_dict.items():
-            f.write(str(y) + "\n")
-        f.close()
+            std_dict[std_id][1] = borrow_date
+            std_dict[std_id][2] = a
+            std_dict[std_id][3] = borrow_cost
 
+            fp = open ("ids.txt", "w")
+            for x, y in std_dict.items():
+                fp.write(str(y) + "\n")
+            fp.close()
 
-        print "Name: ",name
-        print "Book Name: ",book_name
-        print "Total Amount: $",borrow_cost
-        print "The book should be returned in 10 days, otherwise additional charge of $10 would be added."
+                #updating the file
+            os.remove("records.txt")
+            f = open ("records.txt", "w")
+            for x, y in book_dict.items():
+                f.write(str(y) + "\n")
+            f.close()
 
+            print ""
+            print "Name: ",name
+            print "Book Name: ",book_name
+            print "Total Amount: $",borrow_cost
+            print "The book should be returned in 10 days, otherwise additional charge of $10 would be added."
+
+        else:
+            print "Student Id. Not Found!!"
 
     def return_():
         #x = 0
@@ -95,34 +107,53 @@ while (True):
 
     def return_note(a):
         name = raw_input("Enter your Name: ")
-        return_date = input("Date (dd/mm/yyyy): ")
-        book_name = book_dict[a][0]
-        borrow_cost = int(book_dict[a][3])
-        current_quantity = int(book_dict[a][2])
-        book_dict[a][2] = current_quantity + 1
+        std_id = int(input("Enter your Id No: "))
 
-                #updating the file
-        os.remove("records.txt")
-        f = open ("records.txt", "w")
-        for x, y in book_dict.items():
-            f.write(str(y) + "\n")
-        f.close()
+        if std_id in std_dict:
+            return_date = input("Date (dd/mm/yyyy): ")
+            book_name = book_dict[a][0]
+            borrow_cost = int(book_dict[a][3])
+            current_quantity = int(book_dict[a][2])
+            book_dict[a][2] = current_quantity + 1
 
-        print "Name: ",name
-        print "Book Name: ",book_name
-        print "Thank you for returning the book."
+            std_dict[std_id][1] = 0
+            std_dict[std_id][2] = 0
+            std_dict[std_id][3] = 0
+
+            fp = open ("ids.txt", "w")
+            for x, y in std_dict.items():
+                fp.write(str(y) + "\n")
+            fp.close()
+
+                    #updating the file
+            os.remove("records.txt")
+            f = open ("records.txt", "w")
+            for x, y in book_dict.items():
+                f.write(str(y) + "\n")
+            f.close()
+
+            print ""
+            print "Name: ",name
+            print "Book Name: ",book_name
+            print "Thank you for returning the book."
+
+        else:
+            print "Borrow a Book First!"
 
 
     display()
-    #print dict
-    print "1. Borrow"
-    print "2. Return"
-    print "3. Exit"
-    choice = input(">>")
+    #print std_dict
+    try:
+        print "1. Borrow"
+        print "2. Return"
+        print "3. Exit"
+        choice = input(">>")
 
-    if choice == 1:
-        borrow()
-    elif choice == 2:
-        return_()
-    elif choice == 3:
-        exit()
+        if choice == 1:
+            borrow()
+        elif choice == 2:
+            return_()
+        elif choice == 3:
+            run = True
+    except:
+        print "Enter a Valid Choice !!\n\n"
